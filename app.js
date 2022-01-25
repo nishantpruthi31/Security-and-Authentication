@@ -4,7 +4,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose =require("mongoose");
- const md5=require("md5");                            // requiring for converting password into hash
+
+ const bcrypt=require("bcrypt");                            // requiring for using salting and hashing
+ const saltRounds=10;                              // no of rounds after which hash will be generated
 
 const app = express();
 
@@ -33,9 +35,11 @@ app.get("/register",function(req,res){
 });
 
 app.post("/register",function(req,res){
+
+bcrypt.hash(req.body.password,saltRounds,function(err,hash){                             // hashing fxn of bcrypt
   const newUser=new User({
     username:req.body.username,
-    password:md5(req.body.password)                 // when user register we store their password as irreversible hash
+    password:hash                           // storing hash after successful completion
   });
   newUser.save(function(err){
     if(err)
@@ -45,9 +49,11 @@ app.post("/register",function(req,res){
   });
 });
 
+});
+
 app.post("/login",function(req,res){
   const username=req.body.username;
-  const password=md5(req.body.password); // converting this also into hash to check it which hash that was created for this password on signup
+  const password=req.body.password;
 
   User.findOne({username:username},function(err,foundUser){
     if(err)
@@ -56,8 +62,12 @@ app.post("/login",function(req,res){
     {
       if(foundUser)
       {
-        if(foundUser.password===password)
-        res.render("secrets");
+        bcrypt.compare(password,foundUser.password,function(err,result){
+          if(result===true)
+          {
+            res.render("secrets");
+          }
+        });
       }
     }
   });
