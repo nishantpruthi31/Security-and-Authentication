@@ -1,5 +1,5 @@
 
-
+require("dotenv").config();                        // using dotenv packege to use environment variables to store sensitive data
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -17,8 +17,7 @@ const userSchema=new mongoose.Schema({
   username:String,
   password:String
 });
-const secret="This is our little secret";
-userSchema.plugin(encrypt,{secret:secret,encryptedFields: ["password"] });     // we applied mongoose encryption to schema passwords and provided a secret key to encrypt messages ,mongoose will automatically decrypt password when we search in database
+userSchema.plugin(encrypt,{secret:process.env.SECRET,encryptedFields: ["password"] });     // we applied mongoose encryption to schema passwords and provided a secret key to encrypt messages ,mongoose will automatically decrypt password when we search in database
 const User=new mongoose.model("User",userSchema);
 
 app.get("/",function(req,res){
