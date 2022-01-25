@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose =require("mongoose");
-// const encrypt=require("mongoose-encryption");    // package used to encrypt,decrypt and authenticate text/passwords
+ const encrypt=require("mongoose-encryption");    // package used to encrypt,decrypt and authenticate text/passwords
 
 const app = express();
 
@@ -18,7 +18,7 @@ const userSchema=new mongoose.Schema({
   password:String
 });
 const secret="This is our little secret";
-//userSchema.plugin(encrypt,{secret:secret,encryptedFields: ["password"] });     // we applied mongoose encryption to schema passwords and provided a secret key to encrypt messages ,mongoose will automatically decrypt password when we search in database
+userSchema.plugin(encrypt,{secret:secret,encryptedFields: ["password"] });     // we applied mongoose encryption to schema passwords and provided a secret key to encrypt messages ,mongoose will automatically decrypt password when we search in database
 const User=new mongoose.model("User",userSchema);
 
 app.get("/",function(req,res){
